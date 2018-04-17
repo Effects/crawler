@@ -83,7 +83,7 @@ let lastArticleDate = moment();
                     data: data,
                     descricao: description,
                     url: url,
-                    html: null
+                    html: html
                 });
 
                 console.log(articlesFound);
