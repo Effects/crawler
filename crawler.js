@@ -32,15 +32,15 @@ let lastArticleDate = moment();
             }, "ul.list-default > li:nth-child(" + i + ")");
             await page.evaluate('window.scrollBy(0, '+ articleItemHeight +')');
             await page.waitFor(2000);
-            // await page.waitForNavigation({waitUntil: 'networkidle0'});
 
             //Imagem
-            let image = "data";
-            while (image.includes('data')) {
+            let image = "data:";
+            while (image.includes('data:')) {
                 image = await page.evaluate((selector) => {
                     let e = document.querySelector(selector).getAttribute('src');
                     return e ? e : null;
                 }, "ul.list-default > li:nth-child(" + i + ") div.list-item--thumb > img");
+                await page.waitFor(500);
             }
 
             //Titulo
@@ -86,20 +86,21 @@ let lastArticleDate = moment();
                     html: html
                 });
 
-                console.log(articlesFound);
+                // console.log(articlesFound);
             }
 
             lastArticleDate = moment(data, "DD ** MMMM, YYYY");
         }
 
-        console.log("Page number: " + pageNumber);
-        console.log("Articles fetched: " + articlesFound.length);
-
         pageNumber++;
     }
 
+    console.log("Pages crawled: " + pageNumber);
+    console.log("Articles fetched: " + articlesFound.length);
+
     // console.log(articlesFound);
     fs.writeFileSync('./articles.json', JSON.stringify(articlesFound));
+    console.log("Articles saved on file 'articles.json'");
 
     await browser.close();
 
