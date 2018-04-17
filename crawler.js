@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const moment = require('moment');
+const fs = require('fs');
 
 moment.locale('pt-br');
 
@@ -12,7 +13,7 @@ let pageNumber = 1;
 let lastArticleDate = moment();
 
 (async () => {
-    const browser = await puppeteer.launch({headless: false});
+    const browser = await puppeteer.launch({headless: true});
     const page = await browser.newPage();
 
     while (lastArticleDate > moment().subtract(totalDaysToFetch, 'days')) {
@@ -31,12 +32,16 @@ let lastArticleDate = moment();
             }, "ul.list-default > li:nth-child(" + i + ")");
             await page.evaluate('window.scrollBy(0, '+ articleItemHeight +')');
             await page.waitFor(2000);
+            // await page.waitForNavigation({waitUntil: 'networkidle0'});
 
             //Imagem
-            let image = await page.evaluate((selector) => {
-                let e = document.querySelector(selector).getAttribute('src');
-                return e ? e : null;
-            }, "ul.list-default > li:nth-child(" + i + ") div.list-item--thumb > img");
+            let image = "data";
+            while (image.includes('data')) {
+                image = await page.evaluate((selector) => {
+                    let e = document.querySelector(selector).getAttribute('src');
+                    return e ? e : null;
+                }, "ul.list-default > li:nth-child(" + i + ") div.list-item--thumb > img");
+            }
 
             //Titulo
             let title = await page.evaluate((selector) => {
@@ -78,7 +83,7 @@ let lastArticleDate = moment();
                     data: data,
                     descricao: description,
                     url: url,
-                    html: html
+                    html: null
                 });
 
                 console.log(articlesFound);
@@ -93,7 +98,8 @@ let lastArticleDate = moment();
         pageNumber++;
     }
 
-    console.log(JSON.stringify(articlesFound));
+    // console.log(articlesFound);
+    fs.writeFileSync('./articles.json', JSON.stringify(articlesFound));
 
     await browser.close();
 
