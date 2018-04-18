@@ -6,7 +6,7 @@ moment.locale('pt-br');
 
 const articleClass = "list-item";
 
-const totalDaysToFetch = 2;
+const totalDaysToFetch = 30;
 let articlesFound =[];
 let pageNumber = 1;
 let lastArticleDate = moment();
